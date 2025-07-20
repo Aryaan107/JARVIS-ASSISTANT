@@ -1,94 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        #container{
-            text-align: center;
-            padding: 150px 100px;
-            background-color: black;
-            color: aqua;
-            box-shadow: 10px 20px 10px rgba(255, 20, 32, 0.3);
-        }
-        h2{
-            font-size: xx-large;
-        }
-        p,div{
-            font-size: large;
-        }
-        button{
-            padding: 20px 30px;
-            border-radius: 10px;
-            transition: 0.1s;
-            font-size: medium;
-        }
-        button:hover{
-            background-color: aqua;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JARVIS Assistant</title>
+  <style>
+    #container {
+      text-align: center;
+      padding: 150px 100px;
+      background-color: black;
+      color: aqua;
+      box-shadow: 10px 20px 10px rgba(255, 20, 32, 0.3);
+    }
+    h2 {
+      font-size: xx-large;
+    }
+    p, div {
+      font-size: large;
+    }
+    button {
+      padding: 20px 30px;
+      border-radius: 10px;
+      transition: 0.1s;
+      font-size: medium;
+    }
+    button:hover {
+      background-color: aqua;
+    }
+    @media (max-width: 768px) {
+      #container {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div id="container">
-        <h2>🧠 JARVIS-ASSISTANT</h2>
-        <p>say<strong>"hey jarvis open youtube"</strong></p><br><br>
-        <div id="status">click the mic to start:</div><br><br>
-        <button id="start">🎤start listening</button>
-    </div>
-    <script>
-        const status=document.getElementById("status");
-        const start=document.getElementById("start");
+  <div id="container">
+    <h2>🧠 JARVIS-ASSISTANT</h2>
+    <p>Say <strong>"Hey Jarvis open YouTube"</strong></p><br><br>
+    <div id="status">Click the mic to start:</div><br><br>
+    <button id="start">🎤 Start Listening</button>
+  </div>
 
-        const SpeechRecognition=window.speechrecognition || window.webkitSpeechRecognition;
-        const recognition=new SpeechRecognition();
-        recognition.lang='en-US';
-        recognition.continuous=false;
+  <script>
+    const status = document.getElementById("status");
+    const start = document.getElementById("start");
 
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-        start.onclick=function(){
-            recognition.start();
-            status.textContent="🎧listening"
+    if (!SpeechRecognition) {
+      // Show alert and disable button
+      alert("⚠️ Your browser does not support voice recognition. Try using Google Chrome");
+      start.disabled = true;
+      status.textContent = "Speech Recognition not supported.";
+    } else {
+      const recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.continuous = false;
+
+      start.onclick = function () {
+        recognition.start();
+        status.textContent = "🎧 Listening...";
+      };
+
+      recognition.onresult = function (event) {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+
+        if (transcript.includes("hey jarvis")) {
+          if (transcript.includes("open youtube")) {
+            speakAndRedirect("Okay, here you go.", "https://www.youtube.com/");
+          } else if (transcript.includes("open google")) {
+            speakAndRedirect("Okay, here you go.", "https://www.google.com/");
+          } else if (transcript.includes("open whatsapp web")) {
+            speakAndRedirect("Okay, here you go.", "https://web.whatsapp.com/");
+          } else if (transcript.includes("open calculator")) {
+            speak("Sorry, I can't open calculator from the browser.");
+            alert("Cannot open native apps like calculator.");
+          } else {
+            speak("Sorry, I don't understand the command.");
+          }
         }
+      };
 
-      recognition.onresult=function(event){
-            const transcript=event.results[0][0].transcript.toLowerCase();
-        
+      function speak(text) {
+        const utter = new SpeechSynthesisUtterance(text);
+        speechSynthesis.speak(utter);
+      }
 
-        if(transcript.includes("hey jarvis")){
-            if(transcript.includes("open youtube")){
-                speakAndRedirect("okay here you go","https://www.youtube.com/");
-            }
-            else if(transcript.includes("open google")){
-                speakAndRedirect("okay here you go","https://www.google.com/");
-            }
-            else if(transcript.includes("open whatsapp web")){
-                speakAndRedirect("okay here you go","https://web.whatsapp.com/");
-            }
-            else if(transcript.includes("open calculator")){
-                speak("sorry i cannnot open calculator from the browser");
-                alert("cannot open native apps");
-            }
-            else{
-                speak("sorry i dont understand the command");
-            }
-        }
-    }  
-
-        function speak(text){
-            const utter=new SpeechSynthesisUtterance(text);
-            speechSynthesis.speak(utter);
-        }
-
-        function speakAndRedirect(message,url){
-            const utter=new SpeechSynthesisUtterance(message);
-            speechSynthesis.speak(utter);
-
-            utter.onend=function(){
-                window.location.href=url
-            }
-        }
-
-    </script>
+      function speakAndRedirect(message, url) {
+        const utter = new SpeechSynthesisUtterance(message);
+        speechSynthesis.speak(utter);
+        utter.onend = function () {
+          window.location.href = url;
+        };
+      }
+    }
+  </script>
 </body>
 </html>
